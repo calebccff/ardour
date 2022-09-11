@@ -1159,6 +1159,7 @@ def configure(conf):
 
     if re.search ("linux", sys.platform) is not None and Options.options.dist_target != 'mingw':
         autowaf.check_pkg(conf, 'libpulse', uselib_store='PULSEAUDIO', mandatory=False)
+        autowaf.check_pkg(conf, 'libpipewire-0.3', uselib_store='PIPEWIRE', mandatory=False)
 
     if re.search ("openbsd", sys.platform) is not None:
         conf.env.append_value('LDFLAGS', '-L/usr/X11R6/lib')
@@ -1372,6 +1373,8 @@ int main () { __int128 x = 0; return 0; }
             backends += ['jack']
         if conf.is_defined('HAVE_PULSEAUDIO'):
             backends += ['pulseaudio']
+        if conf.is_defined('HAVE_PIPEWIRE'):
+            backends += ['pipewire']
 
         if re.search ("linux", sys.platform) is not None and Options.options.dist_target != 'mingw':
             backends += ['alsa']
@@ -1390,6 +1393,7 @@ int main () { __int128 x = 0; return 0; }
     conf.env['BUILD_PABACKEND'] = any('portaudio' in b for b in backends)
     conf.env['BUILD_CORECRAPPITA'] = any('coreaudio' in b for b in backends)
     conf.env['BUILD_PULSEAUDIO'] = any('pulseaudio' in b for b in backends)
+    conf.env['BUILD_PIPEWIRE'] = any('pipewire' in b for b in backends)
 
     if backends == [''] or not (
                conf.env['BUILD_JACKBACKEND']
@@ -1397,7 +1401,8 @@ int main () { __int128 x = 0; return 0; }
             or conf.env['BUILD_DUMMYBACKEND']
             or conf.env['BUILD_PABACKEND']
             or conf.env['BUILD_CORECRAPPITA']
-            or conf.env['BUILD_PULSEAUDIO']):
+            or conf.env['BUILD_PULSEAUDIO']
+            or conf.env['BUILD_PIPEWIRE']):
         conf.fatal("Must configure and build at least one backend")
 
     if (Options.options.use_lld):
@@ -1421,6 +1426,9 @@ int main () { __int128 x = 0; return 0; }
 
     if conf.env['BUILD_PULSEAUDIO'] and not conf.is_defined('HAVE_PULSEAUDIO'):
         conf.fatal("Pulseaudio Backend requires libpulse-dev")
+    
+    if conf.env['BUILD_PIPEWIRE'] and not conf.is_defined('HAVE_PIPEWIRE'):
+        conf.fatal("Pipewire backend requires pipewire-dev")
 
     set_compiler_flags (conf, Options.options)
 
@@ -1537,6 +1545,7 @@ const char* const ardour_config_info = "\\n\\
     write_config_text('Dummy backend',         conf.env['BUILD_DUMMYBACKEND'])
     write_config_text('JACK Backend',          conf.env['BUILD_JACKBACKEND'])
     write_config_text('Pulseaudio Backend',    conf.env['BUILD_PULSEAUDIO'])
+    write_config_text('Pipewire Backend',      conf.env['BUILD_PIPEWIRE'])
     config_text.write("\\n\\\n")
     write_config_text('Buildstack', conf.env['DEPSTACK_REV'])
     write_config_text('Mac i386 Architecture', opts.generic)

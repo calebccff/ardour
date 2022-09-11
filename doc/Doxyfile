@@ -2070,6 +2070,7 @@ PREDEFINED             = \
                          HAVE_LV2_1_10_0=1 \
                          HAVE_POSIX_MEMALIGN=1 \
                          HAVE_PULSEAUDIO=1 \
+                         HAVE_PIPEWIRE \
                          HAVE_READLINE=1 \
                          HAVE_RUBBERBAND=1 \
                          HAVE_SAMPLERATE=1 \
